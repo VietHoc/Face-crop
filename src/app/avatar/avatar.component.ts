@@ -1,19 +1,28 @@
-import { Component, OnInit } from '@angular/core';
-import { ImageCroppedEvent } from 'ngx-image-cropper';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { ImageCroppedEvent, CropperPosition, ImageCropperComponent } from 'ngx-image-cropper';
 import { WebcamInitError, WebcamImage, WebcamUtil } from 'ngx-webcam';
 import { Subject, Observable } from 'rxjs';
-import {INIT_IMAGE_BASE_64} from '../constant';
+import { INIT_IMAGE_BASE_64 } from '../constant';
+import * as smartcrop from 'smartcrop';
 
-declare var $: any;
 @Component({
   selector: 'app-avatar',
   templateUrl: './avatar.component.html',
   styleUrls: ['./avatar.component.scss']
 })
 export class AvatarComponent implements OnInit {
-  imageChangedEvent: any = '';
+  // @ViewChild(ImageCropperComponent, {static: false}) imageCropper: ImageCropperComponent;s
   croppedImage: any = '';
   imageBase64 = INIT_IMAGE_BASE_64;
+  img: any;
+  cropper: CropperPosition = {
+    x1: 0,
+    y1: 0,
+    x2: 0,
+    y2: 0
+  };
+
+  public currentCropper: CropperPosition;
 
   // toggle webcam on/off
   public showWebcam = true;
@@ -35,11 +44,6 @@ export class AvatarComponent implements OnInit {
   private nextWebcam: Subject<boolean | string> = new Subject<boolean | string>();
 
   public ngOnInit(): void {
-    $(document).ready(function () {
-      //accessing easypiechart.min.js.
-      $('.easypiechart').easyPieChart();
-     });
-
     WebcamUtil.getAvailableVideoInputs()
       .then((mediaDevices: MediaDeviceInfo[]) => {
         this.multipleWebcamsAvailable = mediaDevices && mediaDevices.length > 1;
@@ -69,15 +73,36 @@ export class AvatarComponent implements OnInit {
     console.info('received webcam image', webcamImage);
     this.webcamImage = webcamImage;
     this.imageBase64 = webcamImage.imageAsDataUrl;
+
+    this.img = new Image();
+    this.img.crossOrigin = 'Anonymous';
+    this.img.src = webcamImage.imageAsDataUrl;
+    this.img.onload = ( _ => {
+      this.run();
+    });
   }
-  dataURItoBlob(dataURI) {
-    const binary = atob(dataURI.split(',')[1]);
-    const array = [];
-    for (let i = 0; i < binary.length; i++) {
-      array.push(binary.charCodeAt(i));
-    }
-    return new Blob([new Uint8Array(array)], {
-      type: 'image/png'
+
+  run() {
+    const options = {
+      width: 400,
+      height: 600,
+      minScale: 1,
+      debug: true
+    };
+    this.analyze(options);
+  }
+
+  analyze(options) {
+    smartcrop.crop(this.img, options).then(result => {
+      console.log('smart crop:', result.topCrop);
+      // console.log(this.imageCropper);
+      // console.log(this.imageCropper.cropper);
+      this.currentCropper = {
+        x1: result.topCrop.x,
+        y1: result.topCrop.y,
+        x2: result.topCrop.width + result.topCrop.x,
+        y2: result.topCrop.height + result.topCrop.y
+      };
     });
   }
 
@@ -94,23 +119,20 @@ export class AvatarComponent implements OnInit {
     return this.nextWebcam.asObservable();
   }
 
-  fileChangeEvent(event: any): void {
-    console.log(event);
-    this.imageChangedEvent = event;
-  }
 
   imageCropped(event: ImageCroppedEvent) {
     this.croppedImage = event.base64;
   }
-  imageLoaded() {
-    // show cropper
-  }
 
   cropperReady() {
-    // cropper ready
-  }
-
-  loadImageFailed() {
-    // show message
+    const defaultCropper = {
+      x1: 0,
+      y1: 0,
+      x2: 0,
+      y2: 0
+    };
+    console.log('this.currentCropper:', this.currentCropper);
+    
+    this.cropper = this.currentCropper ? this.currentCropper : defaultCropper;
   }
 }
