@@ -15,21 +15,21 @@ import {MatSnackBar} from '@angular/material';
   styleUrls: ['./avatar.component.scss']
 })
 export class AvatarComponent implements OnInit {
-  imageChangedEvent: any = '';
-  croppedImage: any = '';
-  imageBase64 = INIT_IMAGE_BASE_64;
-  img: any;
-  currentFace = 0;
-  cropper: CropperPosition = {
+  public imageChangedEvent: any = '';
+  public croppedImage: any = '';
+  public imageBase64 = INIT_IMAGE_BASE_64;
+  public img: any;
+  public currentFace = 0;
+  public cropper: CropperPosition = {
     x1: 0,
     y1: 0,
     x2: 0,
     y2: 0
   };
-  options = {
-    width: 400,
-    height: 600,
-    minScale: 1,
+  public options = {
+    width: 30,
+    height: 40,
+    minScale: 0.8,
     boost: null,
     debug: true
   };
@@ -138,6 +138,7 @@ export class AvatarComponent implements OnInit {
         const boost = [];
         for (let i = 0; i < faces.size(); ++i) {
           const face = faces.get(i);
+          console.log(face);
           boost.push({
             x: face.x,
             y: face.y,
@@ -148,7 +149,7 @@ export class AvatarComponent implements OnInit {
         }
         this.options.boost = boost;
         setTimeout(_ => {
-          this.analyze(this.options);
+          this.analyze(this.options, faces.get(0));
         });
       } else {
         this.currentFace = 0;
@@ -159,14 +160,14 @@ export class AvatarComponent implements OnInit {
     });
   }
 
-  analyze(options) {
+  analyze(options, face) {
     smartcrop.crop(this.img, options).then(result => {
       console.log('smart crop:', result.topCrop);
       this.currentCropper = {
         x1: result.topCrop.x,
-        y1: result.topCrop.y,
+        y1: (result.topCrop.y + face.y) / 2,
         x2: result.topCrop.width + result.topCrop.x,
-        y2: result.topCrop.height + result.topCrop.y
+        y2: result.topCrop.height + (result.topCrop.y + face.y) / 2
       };
     });
   }
@@ -196,8 +197,8 @@ export class AvatarComponent implements OnInit {
     const defaultCropper = {
       x1: 0,
       y1: 0,
-      x2: 0,
-      y2: 0
+      x2: 30,
+      y2: 40
     };
 
     console.log('this.currentCropper:', this.currentCropper);
