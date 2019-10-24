@@ -1,5 +1,5 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {ImageCroppedEvent, CropperPosition, ImageCropperComponent} from 'ngx-image-cropper';
+import {Component, OnInit} from '@angular/core';
+import {ImageCroppedEvent, CropperPosition} from 'ngx-image-cropper';
 import {WebcamInitError, WebcamImage, WebcamUtil} from 'ngx-webcam';
 import {Subject, Observable, BehaviorSubject, forkJoin} from 'rxjs';
 import {INIT_IMAGE_BASE_64} from '../constant';
