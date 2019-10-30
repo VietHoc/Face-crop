@@ -7,6 +7,7 @@ import * as smartcrop from 'smartcrop';
 import {NgOpenCVService, OpenCVLoadResult} from 'ng-open-cv';
 import {filter, switchMap, tap} from 'rxjs/operators';
 import {MatSnackBar} from '@angular/material';
+import {OpenCvService} from '../core/http/open-cv.service';
 
 
 @Component({
@@ -20,6 +21,7 @@ export class AvatarComponent implements OnInit {
   public imageBase64 = INIT_IMAGE_BASE_64;
   public img: any;
   public currentFace = 0;
+  message = 'No face in camera!';
   public cropper: CropperPosition = {
     x1: 0,
     y1: 0,
@@ -59,7 +61,8 @@ export class AvatarComponent implements OnInit {
 
   constructor(
     private ngOpenCVService: NgOpenCVService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private openCvHttp: OpenCvService
   ) {
   }
 
@@ -125,9 +128,12 @@ export class AvatarComponent implements OnInit {
       const gray = new cv.Mat();
       cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
       const faces = new cv.RectVector();
+      const eyes = new cv.RectVector();
       const faceCascade = new cv.CascadeClassifier();
+      const eyeCascade = new cv.CascadeClassifier();
       // load pre-trained classifiers
       faceCascade.load('haarcascade_frontalface_default.xml');
+      // eyeCascade.load('haarcascade_eye.xml');
       // detect faces
       const msize = new cv.Size(0, 0);
       faceCascade.detectMultiScale(gray, faces, 1.1, 3, 0, msize, msize);
@@ -138,7 +144,8 @@ export class AvatarComponent implements OnInit {
         const boost = [];
         for (let i = 0; i < faces.size(); ++i) {
           const face = faces.get(i);
-          console.log(face);
+          const roiGray = gray.roi(face);
+          // console.log(face);
           boost.push({
             x: face.x,
             y: face.y,
@@ -146,23 +153,37 @@ export class AvatarComponent implements OnInit {
             height: face.height,
             weight: 1.0
           });
+          // eyeCascade.detectMultiScale(roiGray, eyes);
+          // console.log('eyes:', eyes.size());
+          // if (eyes.size() < 2) {
+          //   this.message = 'No eyes!';
+          //   this.snackBar.open('no eyes', '', {
+          //     duration: 3000,
+          //   });
+          // }
         }
+
         this.options.boost = boost;
         setTimeout(_ => {
           this.analyze(this.options, faces.get(0));
         });
+        src.delete();
+        gray.delete();
+        faceCascade.delete();
+        eyeCascade.delete();
       } else {
         this.currentFace = 0;
-        this.snackBar.open('Show your face in carema!', '', {
+        this.message = 'No face in camera!';
+        this.snackBar.open('Show your face in camera!', '', {
           duration: 2000,
         });
-      };
+      }
     });
   }
 
   analyze(options, face) {
     smartcrop.crop(this.img, options).then(result => {
-      console.log('smart crop:', result.topCrop);
+      // console.log('smart crop:', result.topCrop);
       this.currentCropper = {
         x1: result.topCrop.x,
         y1: (result.topCrop.y + face.y) / 2,
@@ -177,7 +198,7 @@ export class AvatarComponent implements OnInit {
   }
 
   public cameraWasSwitched(deviceId: string): void {
-    console.log('active device: ' + deviceId);
+    // console.log('active device: ' + deviceId);
     this.deviceId = deviceId;
   }
 
@@ -201,9 +222,17 @@ export class AvatarComponent implements OnInit {
       y2: 40
     };
 
-    console.log('this.currentCropper:', this.currentCropper);
+    // console.log('this.currentCropper:', this.currentCropper);
     setTimeout(_ => {
       this.cropper = this.currentCropper ? this.currentCropper : defaultCropper;
+    });
+  }
+
+  validatePhoto(croppedImage) {
+    console.log(croppedImage);
+    croppedImage = croppedImage.substring(22, croppedImage.length);
+    this.openCvHttp.validatorImage(croppedImage).subscribe(res => {
+      console.log(res);
     });
   }
 }

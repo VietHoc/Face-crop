@@ -59,7 +59,7 @@
         ></image-cropper>
       </div>
       <div *ngIf="currentFace == 0">
-        <h3 style="margin-left: 300px">Show your face in carema!</h3>
+        <h3 style="margin-left: 300px">{{this.message}}</h3>
       </div>
     </mat-grid-tile>
   </mat-grid-list>
@@ -68,6 +68,14 @@
   <div *ngIf="!!croppedImage">
     <h1>image croped</h1>
     <img class="img-croped" [src]="croppedImage">
+    <button
+      style="left: 20px"
+      mat-raised-button
+      color="primary"
+      (click)="validatePhoto(croppedImage)"
+    >
+      Validate photo
+    </button>
   </div>
 
 </mat-card>

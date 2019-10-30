@@ -9,6 +9,7 @@ import {WebcamModule} from 'ngx-webcam';
 import {NgOpenCVModule, OpenCVOptions} from 'ng-open-cv';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatButtonModule, MatCardModule, MatGridListModule, MatSnackBarModule} from '@angular/material';
+import {HttpClientModule} from '@angular/common/http';
 
 const openCVConfig: OpenCVOptions = {
   scriptUrl: `assets/opencv/opencv.js`,
@@ -32,7 +33,8 @@ const openCVConfig: OpenCVOptions = {
     MatGridListModule,
     MatButtonModule,
     MatCardModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent],
