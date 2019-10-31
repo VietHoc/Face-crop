@@ -76,6 +76,12 @@
     >
       Validate photo
     </button>
+    <div *ngIf="!!responseValidateImage && !!image">
+      <div style="left: 100px">{{responseValidateImage[1] | json}}</div>
+      <div style="left: 100px">{{responseValidateImage[2] | json}}</div>
+
+      <img class="img-croped" [src]="image">
+    </div>
   </div>
 
 </mat-card>

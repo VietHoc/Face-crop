@@ -22,6 +22,8 @@ export class AvatarComponent implements OnInit {
   public img: any;
   public currentFace = 0;
   message = 'No face in camera!';
+  responseValidateImage: any;
+  image: any;
   public cropper: CropperPosition = {
     x1: 0,
     y1: 0,
@@ -133,12 +135,11 @@ export class AvatarComponent implements OnInit {
       const eyeCascade = new cv.CascadeClassifier();
       // load pre-trained classifiers
       faceCascade.load('haarcascade_frontalface_default.xml');
-      // eyeCascade.load('haarcascade_eye.xml');
+      eyeCascade.load('haarcascade_eye.xml');
       // detect faces
       const msize = new cv.Size(0, 0);
       faceCascade.detectMultiScale(gray, faces, 1.1, 3, 0, msize, msize);
-      console.log('faces:', faces.size());
-
+      let eyesOfOnePeople = 0;
       if (faces.size() > 0) {
         this.currentFace = faces.size();
         const boost = [];
@@ -151,18 +152,18 @@ export class AvatarComponent implements OnInit {
             y: face.y,
             width: face.width,
             height: face.height,
-            weight: 1.0
+            weight: 5.0
           });
-          // eyeCascade.detectMultiScale(roiGray, eyes);
-          // console.log('eyes:', eyes.size());
-          // if (eyes.size() < 2) {
-          //   this.message = 'No eyes!';
-          //   this.snackBar.open('no eyes', '', {
-          //     duration: 3000,
-          //   });
-          // }
+          eyeCascade.detectMultiScale(roiGray, eyes);
+          eyesOfOnePeople = eyes.size();
         }
-
+        const message = eyesOfOnePeople < 2 ? 'No eyes in the photo' : 'Pass';
+        const results = {
+          faces: faces.size(),
+          eyes: eyesOfOnePeople,
+          message
+        }
+        console.log('Results by OpenCv Javascript:', results);
         this.options.boost = boost;
         setTimeout(_ => {
           this.analyze(this.options, faces.get(0));
@@ -186,7 +187,7 @@ export class AvatarComponent implements OnInit {
       // console.log('smart crop:', result.topCrop);
       this.currentCropper = {
         x1: result.topCrop.x,
-        y1: (result.topCrop.y + face.y) / 2,
+        y1: (result.topCrop.y + face.y) / 3,
         x2: result.topCrop.width + result.topCrop.x,
         y2: result.topCrop.height + (result.topCrop.y + face.y) / 2
       };
@@ -229,10 +230,13 @@ export class AvatarComponent implements OnInit {
   }
 
   validatePhoto(croppedImage) {
-    console.log(croppedImage);
     croppedImage = croppedImage.substring(22, croppedImage.length);
     this.openCvHttp.validatorImage(croppedImage).subscribe(res => {
-      console.log(res);
+      this.responseValidateImage = res;
+      this.image = `data:image/png;base64,${res[0].image_removed_background}`
+      this.snackBar.open(res[0].message, '', {
+          duration: 2000,
+        });
     });
   }
 }
