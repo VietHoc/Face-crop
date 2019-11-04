@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, HostListener, OnInit} from '@angular/core';
 import {ImageCroppedEvent, CropperPosition} from 'ngx-image-cropper';
 import {WebcamInitError, WebcamImage, WebcamUtil} from 'ngx-webcam';
 import {Subject, Observable, BehaviorSubject, forkJoin} from 'rxjs';
@@ -24,6 +24,7 @@ export class AvatarComponent implements OnInit {
   message = 'No face in camera!';
   responseValidateImage: any;
   image: any;
+  isEditByKeyBoard = false;
   public cropper: CropperPosition = {
     x1: 0,
     y1: 0,
@@ -162,10 +163,10 @@ export class AvatarComponent implements OnInit {
           faces: faces.size(),
           eyes: eyesOfOnePeople,
           message
-        }
+        };
         console.log('Results by OpenCv Javascript:', results);
         this.options.boost = boost;
-        setTimeout(_ => {
+        setTimeout(res => {
           this.analyze(this.options, faces.get(0));
         });
         src.delete();
@@ -212,6 +213,7 @@ export class AvatarComponent implements OnInit {
   }
 
   imageCropped(event: ImageCroppedEvent) {
+    console.log('this.currentCropper:', this.currentCropper);
     this.croppedImage = event.base64;
   }
 
@@ -223,20 +225,95 @@ export class AvatarComponent implements OnInit {
       y2: 40
     };
 
-    // console.log('this.currentCropper:', this.currentCropper);
+    console.log('this.currentCropper:', this.cropper);
     setTimeout(_ => {
       this.cropper = this.currentCropper ? this.currentCropper : defaultCropper;
-    });
+    }, 10);
   }
 
   validatePhoto(croppedImage) {
     croppedImage = croppedImage.substring(22, croppedImage.length);
     this.openCvHttp.validatorImage(croppedImage).subscribe(res => {
       this.responseValidateImage = res;
-      this.image = `data:image/png;base64,${res[0].image_removed_background}`
+      this.image = `data:image/png;base64,${res[0].image_removed_background}`;
       this.snackBar.open(res[0].message, '', {
-          duration: 2000,
-        });
+        duration: 2000,
+      });
     });
   }
+
+  enableEditCropByKeyBoard() {
+    this.isEditByKeyBoard = true;
+  }
+
+  @HostListener('window:keyup', ['$event'])
+  keyEvent(event: KeyboardEvent) {
+    if (this.isEditByKeyBoard) {
+      window.addEventListener('keydown', e => {
+          // space and arrow keys
+          if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+              e.preventDefault();
+          }
+      }, false);
+
+      if (event.code === KEY_CODE.ARROW_UP) {
+        this.DownY();
+      }
+
+      if (event.code === KEY_CODE.ARROW_DOWN) {
+        this.UpY();
+      }
+
+      if (event.code === KEY_CODE.ARROW_RIGHT) {
+        this.UpX();
+      }
+
+      if (event.code === KEY_CODE.ARROW_LEFT) {
+        this.DownX();
+      }
+    }
+  }
+
+  DownX() {
+    this.cropper = {
+      x1: this.cropper.x1 - 10,
+      y1: this.cropper.y1,
+      x2: this.cropper.x2 - 10,
+      y2: this.cropper.y2
+    };
+  }
+
+  UpX() {
+    this.cropper = {
+      x1: this.cropper.x1 + 10,
+      y1: this.cropper.y1,
+      x2: this.cropper.x2 + 10,
+      y2: this.cropper.y2
+    };
+  }
+
+  DownY() {
+    this.cropper = {
+      x1: this.cropper.x1,
+      y1: this.cropper.y1 - 10,
+      x2: this.cropper.x2,
+      y2: this.cropper.y2 - 10
+    };
+  }
+
+  UpY() {
+    this.cropper = {
+      x1: this.cropper.x1,
+      y1: this.cropper.y1 + 10,
+      x2: this.cropper.x2,
+      y2: this.cropper.y2 + 10
+    };
+  }
+}
+
+export enum KEY_CODE {
+  ARROW_UP = 'ArrowUp',
+  ARROW_DOWN = 'ArrowDown',
+  ARROW_RIGHT = 'ArrowRight',
+  ARROW_LEFT = 'ArrowLeft'
 }
