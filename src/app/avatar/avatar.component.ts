@@ -250,10 +250,10 @@ export class AvatarComponent implements OnInit {
   keyEvent(event: KeyboardEvent) {
     if (this.isEditByKeyBoard) {
       window.addEventListener('keydown', e => {
-          // space and arrow keys
-          if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
-              e.preventDefault();
-          }
+        // space and arrow keys
+        if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+          e.preventDefault();
+        }
       }, false);
 
       if (event.code === KEY_CODE.ARROW_UP) {
@@ -270,6 +270,14 @@ export class AvatarComponent implements OnInit {
 
       if (event.code === KEY_CODE.ARROW_LEFT) {
         this.DownX();
+      }
+
+      if (event.code === KEY_CODE.EQUAL) {
+        this.zoomIn();
+      }
+
+      if (event.code === KEY_CODE.MINUS) {
+        this.zoomOut();
       }
     }
   }
@@ -309,11 +317,32 @@ export class AvatarComponent implements OnInit {
       y2: this.cropper.y2 + 10
     };
   }
+
+  zoomIn() {
+    this.cropper = {
+      x1: this.cropper.x1,
+      y1: this.cropper.y1,
+      x2: this.cropper.x2 * 1.05,
+      y2: this.cropper.y2 * 1.05
+    };
+  }
+
+  zoomOut() {
+    this.cropper = {
+      x1: this.cropper.x1,
+      y1: this.cropper.y1,
+      x2: this.cropper.x2 * 0.95,
+      y2: this.cropper.y2 * 0.95
+    };
+  }
 }
 
 export enum KEY_CODE {
   ARROW_UP = 'ArrowUp',
   ARROW_DOWN = 'ArrowDown',
   ARROW_RIGHT = 'ArrowRight',
-  ARROW_LEFT = 'ArrowLeft'
+  ARROW_LEFT = 'ArrowLeft',
+  CONTROL = 'Control',
+  EQUAL = 'Equal',
+  MINUS = 'Minus'
 }
