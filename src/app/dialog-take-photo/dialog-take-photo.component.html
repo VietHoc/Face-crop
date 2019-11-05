@@ -1,0 +1,65 @@
+<div mat-dialog-content>
+  <mat-grid-list cols="2" rowHeight="520px">
+    <mat-grid-tile *ngIf="showWebcam" colspan="2">
+      <div>
+        <div>
+          <h3>Webcam</h3>
+          <webcam
+            [height]="500"
+            [width]="500"
+            [trigger]="triggerObservable"
+            (imageCapture)="handleImage($event)"
+            [allowCameraSwitch]="allowCameraSwitch"
+            [switchCamera]="nextWebcamObservable"
+            [videoOptions]="videoOptions"
+            [imageQuality]="1"
+            (cameraSwitched)="cameraWasSwitched($event)"
+            (initError)="handleInitError($event)"
+          ></webcam>
+        </div>
+        <div>
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="triggerSnapshot()"
+          >
+            Take A Photo
+          </button>
+        </div>
+      </div>
+    </mat-grid-tile>
+    <mat-grid-tile *ngIf="!showWebcam">
+      <div *ngIf="currentFace != 0" class="crop-image">
+        <image-cropper
+          (click)="enableEditCropByKeyBoard()"
+          [imageChangedEvent]="imageChangedEvent"
+          [imageBase64]="imageBase64"
+          [maintainAspectRatio]="true"
+          [aspectRatio]="35 / 45"
+          [cropper]="cropper"
+          (cropperReady)="cropperReady()"
+          (imageCropped)="imageCropped($event)"
+        ></image-cropper>
+      </div>
+      <div *ngIf="currentFace == 0">
+        <h3 style="margin-left: 300px">{{this.message}}</h3>
+      </div>
+    </mat-grid-tile>
+    <mat-grid-tile *ngIf="!showWebcam">
+      <img style="position: absolute;" src="./assets/images/photo-placeholder-on-resize.png" class="img-croped">
+      <img class="img-croped" [src]="croppedImage">
+    </mat-grid-tile>
+  </mat-grid-list>
+</div>
+<div mat-dialog-actions>
+  <button
+    style="margin-left: 10px"
+    mat-raised-button
+    color="warn"
+    (click)="toggleWebcam()"
+  >
+    Toggle Webcam
+  </button>
+  <button style="margin-left: 10px" mat-raised-button (click)="onNoClick()">No Thanks</button>
+  <button style="margin-left: 10px" mat-raised-button (click)="ok()" cdkFocusInitial>Ok</button>
+</div>

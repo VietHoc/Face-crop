@@ -8,8 +8,9 @@ import { ImageCropperModule } from 'ngx-image-cropper';
 import {WebcamModule} from 'ngx-webcam';
 import {NgOpenCVModule, OpenCVOptions} from 'ng-open-cv';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {MatButtonModule, MatCardModule, MatGridListModule, MatSnackBarModule} from '@angular/material';
+import {MatButtonModule, MatCardModule, MatDialogModule, MatDialogRef, MatGridListModule, MatSnackBarModule} from '@angular/material';
 import {HttpClientModule} from '@angular/common/http';
+import { DialogTakePhotoComponent } from './dialog-take-photo/dialog-take-photo.component';
 
 const openCVConfig: OpenCVOptions = {
   scriptUrl: `assets/opencv/opencv.js`,
@@ -21,7 +22,8 @@ const openCVConfig: OpenCVOptions = {
 @NgModule({
   declarations: [
     AppComponent,
-    AvatarComponent
+    AvatarComponent,
+    DialogTakePhotoComponent
   ],
   imports: [
     BrowserModule,
@@ -34,11 +36,19 @@ const openCVConfig: OpenCVOptions = {
     MatButtonModule,
     MatCardModule,
     MatSnackBarModule,
-    HttpClientModule
+    HttpClientModule,
+    MatDialogModule
   ],
-  providers: [],
+  providers: [
+    {
+       provide: MatDialogRef,
+       useValue: {}
+     },
+  ],
   bootstrap: [AppComponent],
   entryComponents: [
-  ]
+    DialogTakePhotoComponent
+  ],
+  exports: [DialogTakePhotoComponent]
 })
 export class AppModule { }

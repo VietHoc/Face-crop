@@ -1,91 +1,31 @@
 <mat-card>
-  <h1>Auto Crop Face</h1>
+  <h3>Create badge for Leabua Mosia - Informations</h3>
 
-  <mat-grid-list cols="2" rowHeight="600px">
-    <mat-grid-tile>
-      <div>
-        <h3>Webcam</h3>
-        <div>
-          <webcam
-            [height]="500"
-            [width]="500"
-            [trigger]="triggerObservable"
-            (imageCapture)="handleImage($event)"
-            *ngIf="showWebcam"
-            [allowCameraSwitch]="allowCameraSwitch"
-            [switchCamera]="nextWebcamObservable"
-            [videoOptions]="videoOptions"
-            [imageQuality]="1"
-            (cameraSwitched)="cameraWasSwitched($event)"
-            (initError)="handleInitError($event)"
-          ></webcam>
-          <br>
-          <button
-            mat-raised-button
-            color="primary"
-            (click)="triggerSnapshot()"
-          >
-            Take A Photo
-          </button>
-          <button
-            style="margin-left: 10px"
-            mat-raised-button
-            color="warn"
-            (click)="toggleWebcam()"
-          >
-            Toggle Webcam
-          </button>
-        </div>
-        <div style="margin-top: 20px">
-          <span>Or select a photo</span>
-          <input
+  <div>
+    <img *ngIf="!croppedImage" src="./assets/images/photo-placeholder-on-resize.png" class="img-full">
+    <img *ngIf="!!croppedImage" [src]="croppedImage" class="img-full">
+  </div>
+  <div>
+    <button
+      class="btn-photo"
+      mat-raised-button
+      color="primary"
+      (click)="openDialogTakePhoto()"
+    >
+      Take photo
+    </button>
+  </div>
+  <div>
+
+    <button
+      class="btn-photo"
+      mat-raised-button
+      color="warn"
+    >
+      <input
             type="file"
             (change)="fileChangeEvent($event)"
           >
-        </div>
-      </div>
-    </mat-grid-tile>
-    <mat-grid-tile>
-      <div *ngIf="currentFace != 0" class="crop-image">
-        <image-cropper
-          (click)="enableEditCropByKeyBoard()"
-          [imageChangedEvent]="imageChangedEvent"
-          [imageBase64]="imageBase64"
-          [maintainAspectRatio]="true"
-          [aspectRatio]="3/4"
-          [cropper]="cropper"
-          (cropperReady)="cropperReady()"
-          format="png"
-          (imageCropped)="imageCropped($event)"
-          (imageCropped)="imageCropped($event)"
-        ></image-cropper>
-      </div>
-      <div *ngIf="currentFace == 0">
-        <h3 style="margin-left: 300px">{{this.message}}</h3>
-      </div>
-    </mat-grid-tile>
-  </mat-grid-list>
-
-
-  <div *ngIf="!!croppedImage">
-    <h1>image croped</h1>
-    <img class="img-croped" [src]="croppedImage">
-    <button
-      style="left: 20px"
-      mat-raised-button
-      color="primary"
-      (click)="validatePhoto(croppedImage)"
-    >
-      Validate photo
     </button>
-    <div *ngIf="!!responseValidateImage && !!image">
-      <div style="left: 100px">{{responseValidateImage[1] | json}}</div>
-      <div style="left: 100px">{{responseValidateImage[2] | json}}</div>
-      <div style="left: 100px">{{responseValidateImage[3] | json}}</div>
-      <div style="left: 100px">{{responseValidateImage[4] | json}}</div>
-
-      <img class="img-croped" [src]="image">
-    </div>
   </div>
-
 </mat-card>

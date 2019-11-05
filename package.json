@@ -33,6 +33,7 @@
     "smartcrop": "^2.0.3",
     "tracking": "^1.1.3",
     "tslib": "^1.10.0",
+    "web-animations-js": "^2.3.2",
     "zone.js": "~0.9.1"
   },
   "devDependencies": {
