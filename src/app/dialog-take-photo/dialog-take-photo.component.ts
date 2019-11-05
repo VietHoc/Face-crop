@@ -7,6 +7,7 @@ import {MAT_DIALOG_DATA, MatDialogRef, MatSnackBar} from '@angular/material';
 import * as smartcrop from 'smartcrop';
 import {CropperPosition, ImageCroppedEvent} from 'ngx-image-cropper';
 import {filter, switchMap} from 'rxjs/operators';
+import {OpenCvService} from '../core/http/open-cv.service';
 
 @Component({
   selector: 'app-dialog-take-photo',
@@ -20,6 +21,9 @@ export class DialogTakePhotoComponent implements OnInit {
   img: any;
   currentFace = 0;
   message = '';
+  isImageOk = false;
+  validatorStatus = '';
+  isSkipValidator = true;
   public cropper: CropperPosition = {
     x1: 0,
     y1: 0,
@@ -54,6 +58,7 @@ export class DialogTakePhotoComponent implements OnInit {
 
 
   constructor(
+    private openCvHttp: OpenCvService,
     private ngOpenCVService: NgOpenCVService,
     private snackBar: MatSnackBar,
     public dialogRef: MatDialogRef<DialogTakePhotoComponent>,
@@ -158,9 +163,9 @@ export class DialogTakePhotoComponent implements OnInit {
       console.log('result:', result.topCrop);
       console.log('face:', face);
       this.currentCropper = {
-        x1: result.topCrop.x,
+        x1: result.topCrop.x - 50,
         y1: result.topCrop.y,
-        x2: result.topCrop.x + result.topCrop.width,
+        x2: result.topCrop.x + result.topCrop.width - 50,
         y2: result.topCrop.y + result.topCrop.height
       };
       console.log('topCrop new:', this.currentCropper);
@@ -296,7 +301,19 @@ export class DialogTakePhotoComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  ok() {
+  selectImage() {
     this.dialogRef.close(this.croppedImage);
+  }
+
+  validatePhoto(croppedImage) {
+    croppedImage = croppedImage.substring(22, croppedImage.length);
+    this.openCvHttp.validatorImage(croppedImage).subscribe(res => {
+      this.validatorStatus = res;
+      this.isSkipValidator = false;
+    });
+  }
+
+  skipValidator() {
+    this.isImageOk = true;
   }
 }

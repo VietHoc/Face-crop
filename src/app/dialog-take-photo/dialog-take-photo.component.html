@@ -1,5 +1,14 @@
 <div mat-dialog-content>
   <mat-grid-list cols="2" rowHeight="520px">
+    <button
+      *ngIf="!showWebcam"
+      style="margin-left: 10px"
+      mat-raised-button
+      color="warn"
+      (click)="toggleWebcam()"
+    >
+      Toggle Webcam
+    </button>
     <mat-grid-tile *ngIf="showWebcam" colspan="2">
       <div>
         <div>
@@ -52,14 +61,11 @@
   </mat-grid-list>
 </div>
 <div mat-dialog-actions>
-  <button
-    style="margin-left: 10px"
-    mat-raised-button
-    color="warn"
-    (click)="toggleWebcam()"
-  >
-    Toggle Webcam
-  </button>
-  <button style="margin-left: 10px" mat-raised-button (click)="onNoClick()">No Thanks</button>
-  <button style="margin-left: 10px" mat-raised-button (click)="ok()" cdkFocusInitial>Ok</button>
+  <button style="margin-left: 10px" mat-raised-button (click)="onNoClick()" cdkFocusInitial>No Thanks</button>
+  <button *ngIf="!showWebcam" style="margin-left: 10px" mat-raised-button (click)="validatePhoto(croppedImage)">Validator</button>
+
+  <button *ngIf="isImageOk" style="margin-left: 10px" mat-raised-button (click)="selectImage()">Ok</button>
+
+  <div *ngIf="!!validatorStatus">{{validatorStatus | json}}</div>
+  <button *ngIf="!isSkipValidator" style="margin-left: 10px" mat-raised-button (click)="skipValidator()">Skip Validator</button>
 </div>
