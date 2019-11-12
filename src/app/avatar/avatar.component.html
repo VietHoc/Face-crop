@@ -52,11 +52,10 @@
           [imageChangedEvent]="imageChangedEvent"
           [imageBase64]="imageBase64"
           [maintainAspectRatio]="true"
-          [aspectRatio]="3/4"
+          [aspectRatio]="35/45"
           [cropper]="cropper"
           (cropperReady)="cropperReady()"
           format="png"
-          (imageCropped)="imageCropped($event)"
           (imageCropped)="imageCropped($event)"
         ></image-cropper>
       </div>
@@ -69,7 +68,10 @@
 
   <div *ngIf="!!croppedImage">
     <h1>image croped</h1>
-    <img class="img-croped" [src]="croppedImage">
+    <div>
+      <img class="img-croped" style="position: absolute" src="./assets/images/photo-placeholder-on-resize.png">
+      <img class="img-croped" [src]="croppedImage">
+    </div>
     <button
       style="left: 20px"
       mat-raised-button
@@ -83,6 +85,7 @@
       <div style="left: 100px">{{responseValidateImage[2] | json}}</div>
       <div style="left: 100px">{{responseValidateImage[3] | json}}</div>
       <div style="left: 100px">{{responseValidateImage[4] | json}}</div>
+      <div style="left: 100px">{{responseValidateImage[5] | json}}</div>
 
       <img class="img-croped" [src]="image">
     </div>

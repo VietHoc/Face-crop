@@ -3,7 +3,8 @@ import {ImageCroppedEvent, CropperPosition} from 'ngx-image-cropper';
 import {WebcamInitError, WebcamImage, WebcamUtil} from 'ngx-webcam';
 import {Subject, Observable, BehaviorSubject, forkJoin} from 'rxjs';
 import {INIT_IMAGE_BASE_64} from '../constant';
-import * as smartcrop from 'smartcrop';
+import * as
+    smartcrop from 'smartcrop';
 import {NgOpenCVService, OpenCVLoadResult} from 'ng-open-cv';
 import {filter, switchMap, tap} from 'rxjs/operators';
 import {MatSnackBar} from '@angular/material';
@@ -18,7 +19,7 @@ import {OpenCvService} from '../core/http/open-cv.service';
 export class AvatarComponent implements OnInit {
   public imageChangedEvent: any = '';
   public croppedImage: any = '';
-  public imageBase64 = INIT_IMAGE_BASE_64;
+  public imageBase64 = '';
   public img: any;
   public currentFace = 0;
   message = 'No face in camera!';
@@ -32,8 +33,8 @@ export class AvatarComponent implements OnInit {
     y2: 0
   };
   public options = {
-    width: 30,
-    height: 40,
+    width: 35,
+    height: 45,
     minScale: 0.8,
     boost: null,
     debug: true
@@ -122,6 +123,7 @@ export class AvatarComponent implements OnInit {
     console.log('received webcam image', webcamImage);
     this.webcamImage = webcamImage;
     this.imageBase64 = webcamImage.imageAsDataUrl;
+    console.log(this.imageBase64);
 
     this.img = new Image();
     this.img.crossOrigin = 'Anonymous';
@@ -190,7 +192,7 @@ export class AvatarComponent implements OnInit {
         x1: result.topCrop.x,
         y1: (result.topCrop.y + face.y) / 3,
         x2: result.topCrop.width + result.topCrop.x,
-        y2: result.topCrop.height + (result.topCrop.y + face.y) / 2
+        y2: result.topCrop.height + (result.topCrop.y + face.y) / 3
       };
     });
   }
@@ -221,8 +223,8 @@ export class AvatarComponent implements OnInit {
     const defaultCropper = {
       x1: 0,
       y1: 0,
-      x2: 30,
-      y2: 40
+      x2: 35,
+      y2: 45
     };
 
     console.log('this.currentCropper:', this.cropper);
@@ -284,18 +286,18 @@ export class AvatarComponent implements OnInit {
 
   DownX() {
     this.cropper = {
-      x1: this.cropper.x1 - 10,
+      x1: this.cropper.x1 - 5,
       y1: this.cropper.y1,
-      x2: this.cropper.x2 - 10,
+      x2: this.cropper.x2 - 5,
       y2: this.cropper.y2
     };
   }
 
   UpX() {
     this.cropper = {
-      x1: this.cropper.x1 + 10,
+      x1: this.cropper.x1 + 5,
       y1: this.cropper.y1,
-      x2: this.cropper.x2 + 10,
+      x2: this.cropper.x2 + 5,
       y2: this.cropper.y2
     };
   }
@@ -303,18 +305,18 @@ export class AvatarComponent implements OnInit {
   DownY() {
     this.cropper = {
       x1: this.cropper.x1,
-      y1: this.cropper.y1 - 10,
+      y1: this.cropper.y1 - 5,
       x2: this.cropper.x2,
-      y2: this.cropper.y2 - 10
+      y2: this.cropper.y2 - 5
     };
   }
 
   UpY() {
     this.cropper = {
       x1: this.cropper.x1,
-      y1: this.cropper.y1 + 10,
+      y1: this.cropper.y1 + 5,
       x2: this.cropper.x2,
-      y2: this.cropper.y2 + 10
+      y2: this.cropper.y2 + 5
     };
   }
 
@@ -342,7 +344,6 @@ export enum KEY_CODE {
   ARROW_DOWN = 'ArrowDown',
   ARROW_RIGHT = 'ArrowRight',
   ARROW_LEFT = 'ArrowLeft',
-  CONTROL = 'Control',
   EQUAL = 'Equal',
   MINUS = 'Minus'
 }
