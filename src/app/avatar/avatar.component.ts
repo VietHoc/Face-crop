@@ -3,8 +3,7 @@ import {ImageCroppedEvent, CropperPosition} from 'ngx-image-cropper';
 import {WebcamInitError, WebcamImage, WebcamUtil} from 'ngx-webcam';
 import {Subject, Observable, BehaviorSubject, forkJoin} from 'rxjs';
 import {INIT_IMAGE_BASE_64} from '../constant';
-import * as
-    smartcrop from 'smartcrop';
+import * as smartcrop from 'smartcrop';
 import {NgOpenCVService, OpenCVLoadResult} from 'ng-open-cv';
 import {filter, switchMap, tap} from 'rxjs/operators';
 import {MatSnackBar} from '@angular/material';
